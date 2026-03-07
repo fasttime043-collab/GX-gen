@@ -239,7 +239,8 @@ video{
 .mute-toggle{
   position:absolute;
   top:15px;
-  right:15px;
+  right:20px;
+  width:20%;
   background:rgba(0,0,0,0.8);
   color:white;
   border:1px solid #60a5fa;
