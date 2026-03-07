@@ -29,48 +29,43 @@
 
 </body>
 <script>
-function register() {
-    const email = document.getElementById('newEmail').value;
-    const username = document.getElementById('newUsername').value;
-    const password = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+async function register() {
+    const email = document.getElementById('newEmail').value.trim();
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
     const messageDiv = document.getElementById("message");
 
-    messageDiv.textContent = "";
-    messageDiv.className = "";
-
     if (password !== confirmPassword) {
-        messageDiv.classList.add('error');
+        messageDiv.className = "error";
         messageDiv.textContent = 'كلمات المرور غير متطابقة!';
         return;
     }
-    // Validate variables
-    if (!email) {
-        messageDiv.classList.add('error');
-        messageDiv.textContent = 'يرجى إدخال عنوان بريدك الإلكتروني';
-        return;
-    }
-    if (!username) {
-        messageDiv.classList.add('error');
-        messageDiv.textContent = 'يرجى إدخال اسم المستخدم';
-        return;
-    }
-    if (!password) {
-        messageDiv.classList.add('error');
-        messageDiv.textContent = 'يرجى إدخال كلمة المرور';
-        return;
-    }
-    if (!confirmPassword) {
-        messageDiv.classList.add('error');
-        messageDiv.textContent = 'يرجى تأكيد كلمة المرور';
-        return;
-    }
 
-    // Here you would typically send the registration data to a server
-    // For now, we'll just simulate a successful registration
-    alert("تم إنشاء الحساب بنجاح!");
-    window.location.href = 'login.html';
-    
+    try {
+        const response = await fetch("http://127.0.0.1:5000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert(result.message);
+            window.location.href = 'login.html';
+        } else {
+            messageDiv.className = "error";
+            messageDiv.textContent = result.message;
+        }
+    } catch (error) {
+        messageDiv.className = "error";
+        messageDiv.textContent = "حدث خطأ في الاتصال بالسيرفر";
+    }
 }
 
 const canvas = document.getElementById("bg");

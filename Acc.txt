@@ -1,0 +1,18 @@
+user = "FastTime",
+Email = "khirosa742@gmail.com",
+pass = "admin11000",
+
+user = "FastTime1",
+Email = "khirosa7421@gmail.com",
+pass = "admin110001",
+
+user = "FastTime2",
+Email = "khirosa7422@gmail.com",
+pass = "admin110002",
+
+user = "FastTime3",
+Email = "khirosa7423@gmail.com",
+pass = "admin110003",
+user = "fFastTime",
+Email = "fasttime043@gmail.com",
+pass = "admin11000",

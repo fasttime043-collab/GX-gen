@@ -4,12 +4,9 @@
 <meta charset="UTF-8">
 <title>استلام الحسابات | GX-Generator</title>
 <link rel="stylesheet" href="style.css">
-<style>
-
-</style>
+<link rel="icon" type="x-icon" href="icon.ico">
 </head>
 <body>
-<div class="login-light"></div>
 <div class="container">
     <h2>تسجيل الدخول</h2>
     <p style="color: #9ca3af; font-size: 14px;">أدخل بياناتك لفتح القفل عن حساباتك</p>
@@ -122,16 +119,61 @@ function animate(){
 
 animate();
 
-function login() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+async function login() {
 
-        if (username === "FastTime" && password === "admin11000") {
-            window.location.href = 'index.html';
-        } else {
-            alert("بيانات غير صحيحة! حاول مرة أخرى.");
-        }
-    }</script>
+const username = document.getElementById("username").value.trim();
+const password = document.getElementById("password").value.trim();
+
+try {
+
+const response = await fetch("Acc.txt");
+const text = await response.text();
+
+/* استخراج الحسابات */
+
+const accounts = [...text.matchAll(/user\s*=\s*"([^"]+)"[\s\S]*?Email\s*=\s*"([^"]+)"[\s\S]*?pass\s*=\s*"([^"]+)"/g)];
+
+let userFound = false;
+
+for (let acc of accounts) {
+
+let user = acc[1];
+let email = acc[2];
+let pass = acc[3];
+
+if (username === user || username === email) {
+
+userFound = true;
+
+if (password === pass) {
+
+window.location.href = "index.html";
+return;
+
+} else {
+
+alert("⚠️ كلمة المرور خاطئة");
+return;
+
+}
+
+}
+
+}
+
+if (!userFound) {
+alert("❌ لا يوجد حساب بهذه المعلومات");
+}
+
+} catch (error) {
+
+alert("خطأ في قراءة ملف الحسابات");
+
+}
+
+}
+    
+</script>
 
 
 </html>
