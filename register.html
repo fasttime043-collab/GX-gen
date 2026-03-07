@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>استلام الحسابات | GX-Generator</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2>انشاء الحساب</h2>
+        <p style="color: #9ca3af; font-size: 14px;">يرجى انشاء حساب جديد</p>
+        <input type="text" id="newEmail" placeholder="البريد الإلكتروني">
+        <input type="text" id="newUsername" placeholder="اسم المستخدم">
+        <input type="password" id="newPassword" placeholder="كلمة المرور">
+        <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
+        <div class="links">
+            <p style="color: #9ca3af; font-size: 14px;">بإنشاء حسابك، فإنك توافق على <a href="terms.html">شروط الاستخدام</a> و <a href="privacy.html">سياسة الخصوصية</a>.</p>
+        </div>
+        <div id="message"></div>
+        <button id="registerBtn" class="button" onclick="register()">تسجيل</button>
+        <div class="links">
+            <p>هل لديك حساب بالفعل؟ <a href="login.html">تسجيل الدخول</a></p>
+        </div>
+    </div>
+</body>
+<script>
+function register() {
+    const email = document.getElementById('newEmail').value;
+    const username = document.getElementById('newUsername').value;
+    const password = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const messageDiv = document.getElementById("message");
+
+    messageDiv.textContent = "";
+    messageDiv.className = "";
+
+    if (password !== confirmPassword) {
+        messageDiv.classList.add('error');
+        messageDiv.textContent = 'كلمات المرور غير متطابقة!';
+        return;
+    }
+    // Validate variables
+    if (!email) {
+        messageDiv.classList.add('error');
+        messageDiv.textContent = 'يرجى إدخال عنوان بريدك الإلكتروني';
+        return;
+    }
+    if (!username) {
+        messageDiv.classList.add('error');
+        messageDiv.textContent = 'يرجى إدخال اسم المستخدم';
+        return;
+    }
+    if (!password) {
+        messageDiv.classList.add('error');
+        messageDiv.textContent = 'يرجى إدخال كلمة المرور';
+        return;
+    }
+    if (!confirmPassword) {
+        messageDiv.classList.add('error');
+        messageDiv.textContent = 'يرجى تأكيد كلمة المرور';
+        return;
+    }
+
+    // Here you would typically send the registration data to a server
+    // For now, we'll just simulate a successful registration
+    alert("تم إنشاء الحساب بنجاح!");
+    window.location.href = 'login.html';
+}
+</script>
+</html>

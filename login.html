@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>استلام الحسابات | GX-Generator</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>تسجيل الدخول</h2>
+    <p style="color: #9ca3af; font-size: 14px;">أدخل بياناتك لفتح القفل عن حساباتك</p>
+    <input type="text" id="username" placeholder="اسم المستخدم او البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <label class="rememberMe"><input type="checkbox">rememberMe</label>
+    <button id="loginBtn" class="button" onclick="login()">تسجيل الدخول</button>
+    <div class="links">
+        <a href="forget-password.html">نسيت كلمة المرور?</a>
+        <span>|</span>
+        <a href="register.html">لا املك حساب </a>
+    </div>
+</div>
+</body>
+<script>
+function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (username === "FastTime" && password === "admin11000") {
+            window.location.href = 'index.html';
+        } else {
+            alert("بيانات غير صحيحة! حاول مرة أخرى.");
+        }
+    }</script>
+
+</html>
