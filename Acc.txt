@@ -13,6 +13,11 @@ pass = "admin110002",
 user = "FastTime3",
 Email = "khirosa7423@gmail.com",
 pass = "admin110003",
+
 user = "fFastTime",
 Email = "fasttime043@gmail.com",
+pass = "admin11000",
+
+user = "khiro",
+Email = "fasttime04@gmail.com",
 pass = "admin11000",
