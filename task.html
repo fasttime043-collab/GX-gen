@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>استلام الحسابات | GX-Generator</title>
+<style>
+  body { background: #020617; color: white; font-family: Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+  .container { background: rgba(15, 23, 42, 0.9); padding: 40px; border-radius: 25px; border: 1px solid #1e293b; width: 90%; max-width: 550px; box-shadow: 0 0 40px rgba(0,0,0,0.7); }
+  h2 { color: #60a5fa; margin-bottom: 10px; }
+  .video-wrapper { position: relative; width: 100%; margin: 20px 0; border-radius: 15px; overflow: hidden; border: 2px solid #1e293b; }
+  video { width: 100%; display: block; background: black; }
+  .mute-toggle { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #60a5fa; padding: 8px 15px; border-radius: 50px; cursor: pointer; z-index: 10; font-size: 11px; }
+  .input-group { display: none; animation: fadeIn 0.8s ease; }
+  @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+  input { width: 80%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 15px; text-align: center; }
+  .btn { background: #10b981; color: white; padding: 12px 35px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+  #resultsBox { margin-top: 20px; padding: 15px; background: #020617; border: 1px dashed #10b981; border-radius: 10px; display: none; color: #10b981; text-align: right; white-space: pre-line; font-family: monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="videoSection">
+        <h2>أكمل المهمة الأخيرة</h2>
+        <p style="color: #9ca3af; font-size: 14px;">شاهد الفيديو لفتح القفل عن حساباتك</p>
+        <div class="video-wrapper">
+            <button id="muteBtn" class="mute-toggle" onclick="toggleMute()">🔇 تشغيل الصوت</button>
+            <video id="taskVideo" autoplay muted playsinline controlsList="nodownload">
+                <source src="vid/vid2.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <div id="inputGroup" class="input-group">
+        <h2>✅ المهمة جاهزة</h2>
+        <p id="instructionText">أدخل Discord ID لعرض الحسابات (مرة واحدة فقط)</p>
+        <input type="text" id="discordId" placeholder="User#0000">
+        <br>
+        <button id="revealBtn" class="btn" onclick="revealAll()">إظهار جميع الحسابات</button>
+        <div id="resultsBox"></div>
+    </div>
+</div>
+
+<script>
+    const accountsDB = {
+        "Netflix": "Email: net_gx26@gmail.com | Pass: Netflix8899",
+        "Spotify": "Email: spot_gx26@gmail.com | Pass: Premium7722",
+        "Steam": "User: Steam_GX_PRO | Pass: GamerPass1",
+        "Xbox": "Email: xbox_gx@gx.com | Pass: LiveGold88",
+        "Roblox": "User: RobuxMaster_GX | Pass: Admin123",
+        "Minecraft": "Email: mc_gx@gx.com | Pass: Crafting88",
+        "Fortnite": "Email: fn_gx@gx.com | Pass: SkinLover1",
+        "Epic": "User: RobuxMaster_GX | Pass: Admin123",
+        "Amazon": "Email: mc_gx@gx.com | Pass: Crafting88",
+        "Crunchyroll": "Email: fn_gx@gx.com | Pass: SkinLover1",
+        "hotmail": "Email: hotmail_gx@gx.com | Pass: Hotmail123"
+    };
+
+    const video = document.getElementById('taskVideo');
+    let lastTime = 0;
+
+    function toggleMute() {
+        video.muted = !video.muted;
+        document.getElementById('muteBtn').innerText = video.muted ? "🔇 تشغيل الصوت" : "🔊 كتم الصوت";
+    }
+
+    video.addEventListener('timeupdate', () => {
+        if (!video.seeking) {
+            if (video.currentTime > lastTime + 1.5) video.currentTime = lastTime;
+            else lastTime = video.currentTime;
+        }
+    });
+
+    video.onended = () => {
+        document.getElementById('videoSection').style.display = 'none';
+        document.getElementById('inputGroup').style.display = 'block';
+    };
+
+    function revealAll() {
+        const idField = document.getElementById('discordId');
+        const id = idField.value;
+        const box = document.getElementById('resultsBox');
+        const btn = document.getElementById('revealBtn');
+        const instruction = document.getElementById('instructionText');
+        
+        if(id.trim().length < 3) return alert("أدخل الـ ID أولاً!");
+        
+        let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
+        const services = usage.services || [];
+
+        if(services.length === 0) {
+            alert("⚠️ لا توجد حسابات مجهزة أو تم استلامها مسبقاً!");
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const keys = Object.keys(accountsDB);
+        let out = `مرحباً ${id}، إليك حساباتك (انسخها الآن):\n\n`;
+        
+        services.forEach((s, index) => {
+            let accountInfo = "";
+            if (s === "Random") {
+                const rKey = keys[Math.floor(Math.random() * keys.length)];
+                accountInfo = `(عشوائي: ${rKey}) ${accountsDB[rKey]}`;
+            } else {
+                accountInfo = accountsDB[s] || "غير متوفر";
+            }
+            out += `${index+1}- [${s}]: ${accountInfo}\n`;
+        });
+
+        // 1. عرض النتائج
+        box.innerText = out;
+        box.style.display = 'block';
+
+        // 2. إخفاء عناصر التحكم
+        btn.style.display = 'none';
+        idField.style.display = 'none';
+        instruction.innerHTML = "⚠️ <span style='color:#ef4444'>تم تدمير البيانات من الذاكرة للأمان.</span>";
+
+        // 3. مسح الحسابات فقط مع الحفاظ على العداد
+        usage.services = []; 
+        localStorage.setItem('gx_usage', JSON.stringify(usage));
+        
+        alert("تم استلام الحسابات. سيظل عدادك اليومي مسجلاً لمنع التكرار.");
+    }
+
+</script>
+</body>
+</html>

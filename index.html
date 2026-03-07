@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>GX-Generator | الرئيسية</title>
+<style>
+  body{ background:#020617; font-family: Arial, sans-serif; color:white; margin:0; overflow:hidden; display:flex; align-items:center; justify-content:center; height:100vh; position:relative; }
+  #bg{ position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; }
+  
+  .clock-container { position: absolute; top: 20px; left: 20px; background: rgba(15,23,42,0.8); padding: 10px 20px; border-radius: 15px; border: 1px solid #1e293b; text-align: left; z-index: 10; font-family: monospace; }
+  #liveClock { font-size: 18px; color: #60a5fa; font-weight: bold; }
+  #resetTimer { font-size: 11px; color: #9ca3af; margin-top: 5px; }
+
+  .card{ width:320px; background:rgba(15,23,42,0.7); backdrop-filter:blur(15px); border-radius:25px; padding:30px; text-align:center; box-shadow:0 0 40px rgba(0,0,0,0.6); z-index:1; border: 1px solid rgba(255,255,255,0.1); }
+  .logo{ width:80px; height:80px; background:#111; border-radius:20px; display:flex; align-items:center; justify-content:center; margin:auto; font-size:40px; }
+  .title{ font-size:22px; margin-top:15px; font-weight:bold; }
+  .subtitle{ font-size:12px; color:#9ca3af; margin-bottom:20px; }
+  
+  .select{ background:#1e293b; padding:12px; border-radius:12px; margin-bottom:20px; cursor:pointer; transition:0.3s; border: 1px solid transparent; }
+  .select:hover{ background:#374151; border-color: #60a5fa; }
+  
+  .grid{ display:none; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; }
+  .grid.show{ display:grid; }
+  
+  .service{ background:#0f172a; padding:10px; border-radius:10px; cursor:pointer; transition:0.3s; display:flex; flex-direction:column; align-items:center; position: relative; }
+  .service img{ width:32px; height:32px; object-fit: contain; }
+  .service:hover{ transform:scale(1.1); background:#1e293b; box-shadow:0 0 15px #60a5fa; }
+  
+  .remaining{ font-size:9px; color:#60a5fa; margin-top:4px; font-weight: bold; }
+  .loader{ border:3px solid #1e293b; border-top:3px solid #60a5fa; border-radius:50%; width:16px; height:16px; animation: spin 0.8s linear infinite; margin-top:5px; }
+  @keyframes spin{ 100% {transform: rotate(360deg);} }
+
+  .activity{ position:absolute; right:40px; bottom:80px; background:rgba(15,23,42,0.7); backdrop-filter:blur(10px); border-radius:20px; padding:20px; width:220px; z-index:1; }
+  .log{ background:#0f172a; padding:8px; border-radius:10px; margin-bottom:8px; font-size:11px; opacity:0; transform:translateX(20px); transition:0.4s; text-align: right; }
+  .log.show{ opacity:1; transform:translateX(0); }
+  
+  #claimBtn { display: none; width: 100%; background: linear-gradient(90deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.3s; }
+</style>
+</head>
+<body>
+
+<div class="clock-container">
+    <div id="liveClock">00:00:00</div>
+    <div id="resetTimer">التصفير خلال: --:--:--</div>
+</div>
+
+<canvas id="bg"></canvas>
+
+<div class="card">
+  <div class="logo">✨</div>
+  <div class="title">GX-Generator</div>
+  <div class="subtitle">نظام التوليد v4.0</div>
+  <div class="select" onclick="toggleServices()">اختر الخدمة</div>
+  <div class="grid" id="services">
+    <div class="service" data-name="Netflix" onclick="useService(this)"><img src="pic/icons-netflix.png"></div>
+    <div class="service" data-name="Spotify" onclick="useService(this)"><img src="pic/icons-spotify.png"></div>
+    <div class="service" data-name="Steam" onclick="useService(this)"><img src="pic/icons-steam.png"></div>
+    <div class="service" data-name="Xbox" onclick="useService(this)"><img src="pic/icons-Xbox.png"></div>
+    <div class="service" data-name="Roblox" onclick="useService(this)"><img src="pic/icons-roblox.png"></div>
+    <div class="service" data-name="Minecraft" onclick="useService(this)"><img src="pic/icons-minecraft.png"></div>
+    <div class="service" data-name="Epic" onclick="useService(this)"><img src="pic/icons-Epic.png"></div>
+    <div class="service" data-name="Amazon" onclick="useService(this)"><img src="pic/icons-Amazon.png"></div>
+    <div class="service" data-name="Crunchyroll" onclick="useService(this)"><img src="pic/icons-Crunchyroll.png"></div>
+    <div class="service" data-name="fortnite" onclick="useService(this)"><img src="pic/icons-fortnite.png"></div>
+    <div class="service" data-name="hotmail" onclick="useService(this)"><img src="pic/icons-hotmail.png"></div>
+    <div class="service" data-name="Random" onclick="useService(this)"><img src="pic/icons-random.png"></div>
+  </div>
+</div>
+
+<div class="activity">
+  <h4 style="margin:0; font-size:12px; color:#60a5fa;">● السجل المباشر</h4>
+  <div id="logContainer"></div>
+  <button id="claimBtn" onclick="window.location.href='task.html'">🎁 استلام الحسابات (CLAIM)</button>
+</div>
+
+<script>
+const DAILY_LIMIT = 2;
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-GB');
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+    const diff = midnight - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('resetTimer').innerText = `التصفير خلال: ${h}س ${m}د ${s}ث`;
+}
+setInterval(updateClock, 1000);
+
+function useService(el) {
+    const name = el.dataset.name;
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    
+    let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
+
+    // تصفير الجلسة في يوم جديد
+    if (!usage.timestamp || usage.timestamp < startOfToday) {
+        usage = { timestamp: now.getTime(), count: 0, services: [] };
+    }
+
+    if (usage.count >= DAILY_LIMIT) {
+        alert("⚠️ وصلت للحد اليومي! سيتم التصفير تلقائياً عند منتصف الليل.");
+        return;
+    }
+
+    const loader = document.createElement('div');
+    loader.className = 'loader';
+    el.appendChild(loader);
+
+    setTimeout(() => {
+        loader.remove();
+        usage.count++;
+        usage.services.push(name);
+        usage.timestamp = now.getTime();
+        localStorage.setItem('gx_usage', JSON.stringify(usage));
+        addLog(`تم تجهيز ${name}..`);
+        updateUI();
+        document.getElementById('claimBtn').style.display = 'block';
+    }, 1000);
+}
+
+function updateUI() {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
+    let currentCount = (!usage.timestamp || usage.timestamp < startOfToday) ? 0 : (usage.count || 0);
+    const rem = DAILY_LIMIT - currentCount;
+
+    document.querySelectorAll('.service').forEach(el => {
+        el.querySelector('.remaining')?.remove();
+        const s = document.createElement('span'); s.className='remaining';
+        s.innerText = rem > 0 ? `${rem} متبقي` : `مغلق`;
+        el.appendChild(s);
+    });
+}
+
+function toggleServices(){ document.getElementById("services").classList.toggle("show"); }
+function addLog(t){
+    const c = document.getElementById('logContainer');
+    const l = document.createElement('div'); l.className='log'; l.innerText=t;
+    c.prepend(l); setTimeout(()=>l.classList.add('show'), 50);
+    if(c.children.length > 4) c.lastChild.remove();
+}
+
+
+// خلفية بسيطة
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+window.onresize();
+function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="rgba(96,165,250,0.1)";
+    for(let i=0; i<50; i++) ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+    requestAnimationFrame(anim);
+}
+anim(); updateUI();
+</script>
+</body>
+</html>
