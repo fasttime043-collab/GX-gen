@@ -35,19 +35,21 @@ body{
   text-align:left;
   z-index:10;
   font-family:monospace;
+  color: aqua;
+  font-size: 20px;
 }
 
-#liveClock{
-  font-size:18px;
-  color:#60a5fa;
-  font-weight:bold;
+
+
+#resetTimer {
+    font-family: 'Courier New', Courier, monospace; /* خط يشبه الأجهزة الرقمية */
+    font-size: 24px;
+    font-weight: bold;
+    color: #60a5fa; /* اللون الأزرق السماوي كما في الصورة */
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); /* توهج بسيط */
+    letter-spacing: 2px;
 }
 
-#resetTimer{
-  font-size:11px;
-  color:#9ca3af;
-  margin-top:5px;
-}
 
 /* ===== البطاقة ===== */
 .card{
@@ -60,7 +62,18 @@ body{
   text-align:center;
   box-shadow:0 0 40px rgba(0,0,0,0.6);
   border:1px solid rgba(255,255,255,0.1);
+  animation: glow 1.5s infinite alternate;
 }
+
+@keyframes glow{
+  from{
+    box-shadow:0 0 10px #3b82f6;
+  }
+  to{
+    box-shadow:0 0 20px #3b82f6, 0 0 40px #3b82f6;
+  }
+}
+
 
 .logo{
   width:80px;
@@ -377,4 +390,19 @@ canvas{
   top:0;
   left:0;
   z-index:-1;
+}
+
+.usage-tracker {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
+    color: #60a5fa;
+    font-size: 13px;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }

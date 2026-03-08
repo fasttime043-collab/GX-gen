@@ -8,11 +8,7 @@
 <body>
 
 <div class="clock-container">
-    <div id="liveClock">00:00:00</div>
-    <div id="resetTimer">التصفير خلال: --:--:--</div>
-</div>
-<div class="loginBtn">
-    <button id="loginBtn" onclick="window.location.href='login.html'">تسجيل الدخول</button>
+    <div id="resetTimer">00:00:00</div>
 </div>
 
 <canvas id="bg"></canvas>
@@ -44,35 +40,90 @@
   <button id="claimBtn" onclick="window.location.href='task.html'">🎁 استلام الحسابات (CLAIM)</button>
 </div>
 
+<div id="usageTracker" class="usage-tracker">
+    المحاولات المتبقية: <span id="remCount">--</span>
+</div>
+</body>
 <script>
 const DAILY_LIMIT = 2;
+const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 ساعة
 
-function updateClock() {
-    const now = new Date();
-    document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-GB');
-    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-    const diff = midnight - now;
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('resetTimer').innerText = `التصفير خلال: ${h}س ${m}د ${s}ث`;
+function updateUI() {
+    const now = new Date().getTime();
+    let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
+    
+    // التحقق مما إذا مر 5 دقائق منذ آخر تصفير
+    if (usage.nextReset && now >= usage.nextReset) {
+        usage = { 
+            nextReset: now + RESET_INTERVAL_MS, 
+            count: 0, 
+            services: [] 
+        };
+        localStorage.setItem('gx_usage', JSON.stringify(usage));
+    } else if (!usage.nextReset) {
+        // إعداد التوقيت لأول مرة
+        usage.nextReset = now + RESET_INTERVAL_MS;
+        localStorage.setItem('gx_usage', JSON.stringify(usage));
+    }
+
+    const currentCount = usage.count || 0;
+    const rem = DAILY_LIMIT - currentCount;
+    const remDisplay = rem > 0 ? rem : 0;
+
+    const remCountEl = document.getElementById('remCount');
+    if(remCountEl) {
+        remCountEl.innerText = remDisplay;
+    }
 }
-setInterval(updateClock, 1000);
+
+// الوظيفة الجديدة لحساب الوقت المتبقي حتى منتصف الليل
+function updateResetTimer() {
+    const now = new Date().getTime();
+    let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
+    
+    if (!usage.nextReset) return;
+
+    const diff = usage.nextReset - now;
+
+    if (diff <= 0) {
+        updateUI(); // قم بتحديث البيانات فور انتهاء الوقت
+        return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    const display = 
+        String(hours).padStart(2, '0') + ":" +
+        String(minutes).padStart(2, '0') + ":" + 
+        String(seconds).padStart(2, '0');
+
+    document.getElementById('resetTimer').innerText = "" + display;
+}
+
+// تشغيل العداد وتحديث الواجهة عند تحميل الصفحة
+updateUI();
+setInterval(() => {
+    updateUI();
+    updateResetTimer();
+}, 1000);
+updateResetTimer();
+
+
+// --- وظائف الخدمات والقائمة ---
+function toggleServices() {
+    const servicesGrid = document.getElementById("services");
+    if(servicesGrid) servicesGrid.classList.toggle("show");
+}
 
 function useService(el) {
     const name = el.dataset.name;
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    
+    const now = new Date().getTime();
     let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
 
-    // تصفير الجلسة في يوم جديد
-    if (!usage.timestamp || usage.timestamp < startOfToday) {
-        usage = { timestamp: now.getTime(), count: 0, services: [] };
-    }
-
     if (usage.count >= DAILY_LIMIT) {
-        alert("⚠️ وصلت للحد اليومي! سيتم التصفير تلقائياً عند منتصف الليل.");
+        alert("⚠️ وصلت للحد المسموح!.");
         return;
     }
 
@@ -84,39 +135,20 @@ function useService(el) {
         loader.remove();
         usage.count++;
         usage.services.push(name);
-        usage.timestamp = now.getTime();
         localStorage.setItem('gx_usage', JSON.stringify(usage));
         addLog(`تم تجهيز ${name}..`);
         updateUI();
         document.getElementById('claimBtn').style.display = 'block';
     }, 1000);
 }
-
-function updateUI() {
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    let usage = JSON.parse(localStorage.getItem('gx_usage') || '{}');
-    let currentCount = (!usage.timestamp || usage.timestamp < startOfToday) ? 0 : (usage.count || 0);
-    const rem = DAILY_LIMIT - currentCount;
-
-    document.querySelectorAll('.service').forEach(el => {
-        el.querySelector('.remaining')?.remove();
-        const s = document.createElement('span'); s.className='remaining';
-        s.innerText = rem > 0 ? `${rem} متبقي` : `مغلق`;
-        el.appendChild(s);
-    });
-}
-
-function toggleServices(){ document.getElementById("services").classList.toggle("show"); }
 function addLog(t){
     const c = document.getElementById('logContainer');
+    if(!c) return;
     const l = document.createElement('div'); l.className='log'; l.innerText=t;
     c.prepend(l); setTimeout(()=>l.classList.add('show'), 50);
     if(c.children.length > 4) c.lastChild.remove();
 }
 
-
-// خلفية بسيطة
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
@@ -213,5 +245,4 @@ function animate(){
 
 animate();
 </script>
-</body>
 </html>

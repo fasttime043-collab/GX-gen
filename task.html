@@ -13,8 +13,8 @@
         <p style="color: #9ca3af; font-size: 14px;">شاهد الفيديو لفتح القفل عن حساباتك</p>
         <div class="video-wrapper">
             <button id="muteBtn" class="mute-toggle" onclick="toggleMute()">🔇 تشغيل الصوت</button>
-            <video id="taskVideo" autoplay muted playsinline controlsList="nodownload">
-                <source src="vid/vid2.mp4" type="video/mp4">
+            <video id="myVideo" autoplay muted controls>
+              <source id="videoSource" type="video/mp4">
             </video>
         </div>
     </div>
@@ -207,6 +207,18 @@ function animate(){
 }
 
 animate();
+
+let videos = [
+    "vid/vid1.mp4",
+    "vid/vid2.mp4",
+    "vid/vid3.mp4",
+    "vid/vid4.mp4"
+];
+
+let randomVideo = videos[Math.floor(Math.random() * videos.length)];
+
+document.getElementById("videoSource").src = randomVideo;
+document.getElementById("myVideo").load();
 
 </script>
 </body>
